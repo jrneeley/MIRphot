@@ -1,6 +1,4 @@
 import sys
-#sys.path.insert(0,'/home/jill/python/')
-#import CRRPphot as crrp
 from . import daophot_setup
 import daophot_tools as dao
 import os
