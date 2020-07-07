@@ -1,13 +1,14 @@
 import sys
-from . import daophot_setup
+import daophot_setup
 import daophot_tools as dao
 import os
 import numpy as np
 import shutil
 
+
 targets = ['NGC7078', 'NGC3201', 'NGC6402', 'NGC6121', 'NGC5904']
 
-s = 2
+s = 1
 target = targets[s]
 
 
@@ -28,13 +29,13 @@ for ii, ch in enumerate(channels):
     # copy appropriate daophot options files to current directory
     daophot_setup.get_irac_opt_files(channels, frametime, warm=1, mosaic=1)
 
-    print 'Prepping {} images....'.format(ch)
+    print('Prepping {} images....'.format(ch))
     for jj in range(n_epochs):
         flux_image = '{}_{}_e{}_mosaic.fits'.format(ch, target, jj+1)
         daophot_setup.spitzer_flux2dn(flux_image, exptime=exptime, \
             fluxconv=fluxconv[ii], pixratio=pixratio)
 
-        print '    Working on single epoch mosaic {} of {}'.format(jj+1, n_epochs)
+        print('    Working on single epoch mosaic {} of {}'.format(jj+1, n_epochs))
 
         dn_stem = '{}_{}_e{}_mosaic_dn'.format(ch, target, jj+1)
         img_list.append(dn_stem+'.ap')

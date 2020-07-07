@@ -9,7 +9,6 @@ from daophot_tools import config
 def spitzer_flux2dn(image, newname="", exptime=0, fluxconv=0, pixratio=1):
 
 
-
 	if (newname == ""):
 		newname = re.sub(".fits", "_dn.fits", image)
 	shutil.copy(image, newname)
