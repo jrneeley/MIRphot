@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import re
 import shutil
 from astropy.io import fits
