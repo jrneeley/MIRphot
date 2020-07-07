@@ -3,7 +3,7 @@
 import re
 import shutil
 from astropy.io import fits
-import config
+from daophot_tools import config
 
 
 def spitzer_flux2dn(image, newname="", exptime=0, fluxconv=0, pixratio=1):
