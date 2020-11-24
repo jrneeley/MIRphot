@@ -1,6 +1,4 @@
 import sys
-#sys.path.insert(0,'/home/jill/python/')
-#import CRRPphot as crrp
 import daophot_tools as dao
 import os
 import glob
@@ -12,10 +10,6 @@ import matplotlib.pyplot as plt
 target = sys.argv[1]
 montage_x = sys.argv[2]
 montage_y = sys.argv[3]
-
-#targets = ['NGC7078', 'NGC3201', 'NGC6402', 'NGC6121', 'NGC5904']
-#s = 0
-#target = targets[s]
 
 os.chdir(target)
 num_iters = 1
@@ -29,11 +23,11 @@ print('    Running daophot find and phot ...')
 opt_file = 'I1-daophot.opt'
 # For the median image roughly 60 frames have been averaged, (5 dithers * 12 aors).
 # Accounting for this adjusts the readout noise and gain from the opt file
-dao.dao.find(median_stem, num_frames='60,1', new_thresh=2, opt_file=opt_file, verbose=1)
+dao.dao.find(median_stem, num_frames='5,1', new_thresh=2, opt_file=opt_file, verbose=1)
 dao.dao.phot(median_stem, opt_file=opt_file, verbose=0)
 
 # copy master PSF to every other frame
-master_psf = '{}I1_mosaic_012919.psf'.format(dao.config.psf_dir)
+master_psf = '{}I1_0p6_pixscale_mosaic_dn.psf'.format(dao.config.psf_dir)
 shutil.copy(master_psf, median_stem+'.psf')
 # Run allstar
 print('    Running allstar...')
@@ -48,7 +42,7 @@ for jj in range(num_iters):
     shutil.copy(sub_img, 'median_sub_{}.fits'.format(jj+1))
     # Find additional stars in subtracted image
     print('    Running daophot find...')
-    dao.dao.find(sub_img, num_frames='60,1', new_thresh=3, opt_file=opt_file, verbose=0)
+    dao.dao.find(sub_img, num_frames='5,1', new_thresh=3, opt_file=opt_file, verbose=0)
     print('    Running offset and append...')
     dao.dao.offset(median_stem+'s.coo', id_offset=(jj+1)*100000)
     dao.other.dao2reg(median_stem+'s.coo', 'median-{}'.format(jj+2), ids=0)

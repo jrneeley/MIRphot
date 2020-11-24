@@ -6,11 +6,7 @@ import numpy as np
 import shutil
 
 
-targets = ['NGC7078', 'NGC3201', 'NGC6402', 'NGC6121', 'NGC5904']
-
-s = 1
-target = targets[s]
-
+target = sys.argv[1]
 
 channels = ['I1', 'I2']
 exptime = 23.6
@@ -31,26 +27,27 @@ for ii, ch in enumerate(channels):
 
     print('Prepping {} images....'.format(ch))
     for jj in range(n_epochs):
-        flux_image = '{}_{}_e{}_mosaic.fits'.format(ch, target, jj+1)
+        flux_image = '{}_{}_e{:02}.fits'.format(ch, target, jj+1)
         daophot_setup.spitzer_flux2dn(flux_image, exptime=exptime, \
             fluxconv=fluxconv[ii], pixratio=pixratio)
 
         print('    Working on single epoch mosaic {} of {}'.format(jj+1, n_epochs))
 
-        dn_stem = '{}_{}_e{}_mosaic_dn'.format(ch, target, jj+1)
-        img_list.append(dn_stem+'.ap')
+        dn_stem = '{}_{}_e{:02}_dn'.format(ch, target, jj+1)
+        #img_list.append(dn_stem+'.ap')
         # Do first round of initial photometry
         #print '    Running daophot...'
         opt_file = '{}-daophot.opt'.format(ch)
         # Run find and phot on each single epoch mosaic
-        dao.dao.find(dn_stem, num_frames='5,1', opt_file=opt_file, new_thresh=10.0, verbose=1)
+        dao.dao.find(dn_stem, num_frames='1,1', opt_file=opt_file, new_thresh=10.0, verbose=1)
         dao.dao.phot(dn_stem, opt_file=opt_file, verbose=0)
         # copy master PSF to every other frame
-        master_psf = '{}{}_mosaic_012919.psf'.format(dao.config.psf_dir, ch)
+        master_psf = '{}{}_0p6_pixscale_mosaic_dn.psf'.format(dao.config.psf_dir, ch)
         shutil.copy(master_psf, dn_stem+'.psf')
-        dao.dao.allstar(dn_stem, suppress=1)
+        dao.dao.allstar(dn_stem, suppress=0, verbose=1)
+        img_list.append(dn_stem+'.als')
 
-# match the aperture photometry files
-dao.dao.daomatch(img_list, 'all-ap.mch', force_scale_rot=0)
-dao.dao.daomaster('all-ap.mch', frame_num='10,0.5,12', sigma='1')
+# match the allstar photometry files
+dao.dao.daomatch(img_list, 'all-als.mch', force_scale_rot=1)
+dao.dao.daomaster('all-als.mch', frame_num='10,0.5,12', sigma='1')
 # A good transformation is more important than a complete catalog at this stage
