@@ -6,6 +6,8 @@ from daophot_tools import config
 
 
 def spitzer_flux2dn(image, newname="", exptime=0, fluxconv=0, pixratio=1):
+	# exptime should be total (median) integration time
+	# fluxconv is the value for a single BCD 
 
 	if (newname == ""):
 		newname = re.sub(".fits", "_dn.fits", image)
@@ -13,24 +15,14 @@ def spitzer_flux2dn(image, newname="", exptime=0, fluxconv=0, pixratio=1):
 	hdul = fits.open(newname, mode='update')
 	prihdr = hdul[0].header
 	scidata = hdul[0].data
+
+	# if no exptime or fluxconv is given, get it from the header. 
+	# WARNING: this will only be accurate for individual BCDs! 	
 	if exptime == 0 : exptime = prihdr['exptime']
 	if fluxconv == 0 : fluxconv = prihdr['fluxconv']
+	
 	# change default fluxconv if not in native pixel ratio
 	if pixratio != 1: fluxconv *= pixratio
-
-	# If user has supplied the frametime, we need to convert it to exptime.
-	if exptime == 0.4:
-		exptime = 0.2
-	if exptime == 2:
-		exptime = 1.2
-	if exptime == 6:
-		exptime = 6 ### Update
-	if exptime == 12:
-		exptime = 10.4
-	if exptime == 30:
-		exptime = 23.6
-	if exptime == 100:
-		exptime = 100 ### Update
 
 	scidata *= exptime/fluxconv
 	hdul.close()
